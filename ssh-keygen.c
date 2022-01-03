@@ -3238,6 +3238,7 @@ main(int argc, char **argv)
 	int prefer_agent = 0, convert_to = 0, convert_from = 0;
 	int print_public = 0, print_generic = 0, cert_serial_autoinc = 0;
 	int do_gen_candidates = 0, do_screen_candidates = 0, download_sk = 0;
+	int force_overwrite = 0;
 	unsigned long long cert_serial = 0;
 	char *identity_comment = NULL, *ca_key_path = NULL, **opts = NULL;
 	char *sk_application = NULL, *sk_device = NULL, *sk_user = NULL;
@@ -3274,8 +3275,8 @@ main(int argc, char **argv)
 
 	sk_provider = getenv("SSH_SK_PROVIDER");
 
-	/* Remaining characters: dGjJSTWx */
-	while ((opt = getopt(argc, argv, "ABHKLQUXceghiklopquvy"
+	/* Remaining characters: dGjJSTx */
+	while ((opt = getopt(argc, argv, "ABHKLQUWXceghiklopquvy"
 	    "C:D:E:F:I:M:N:O:P:R:V:Y:Z:"
 	    "a:b:f:g:m:n:r:s:t:w:z:")) != -1) {
 		switch (opt) {
@@ -3463,6 +3464,9 @@ main(int argc, char **argv)
 				do_screen_candidates = 1;
 			else
 				fatal("Unsupported moduli option %s", optarg);
+			break;
+		case 'W':
+			force_overwrite = 1;
 			break;
 		case '?':
 		default:
@@ -3787,7 +3791,7 @@ main(int argc, char **argv)
 	hostfile_create_user_ssh_dir(identity_file, !quiet);
 
 	/* If the file already exists, ask the user to confirm. */
-	if (!confirm_overwrite(identity_file))
+	if (!force_overwrite && !confirm_overwrite(identity_file))
 		exit(1);
 
 	/* Determine the passphrase for the private key */
